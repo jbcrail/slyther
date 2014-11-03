@@ -1,4 +1,4 @@
-Slyther ![Build Status](https://travis-ci.org/jbcrail/slyther.png)
+slyther ![Build Status](https://travis-ci.org/jbcrail/slyther.png)
 =======
 
 To install:
