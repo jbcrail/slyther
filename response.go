@@ -82,3 +82,9 @@ func NewResponse(base *url.URL, referer string, r io.Reader) *Response {
 	}
 	return &response
 }
+
+type ResponseByReferer []*Response
+
+func (r ResponseByReferer) Len() int           { return len(r) }
+func (r ResponseByReferer) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
+func (r ResponseByReferer) Less(i, j int) bool { return r[i].Referer < r[j].Referer }

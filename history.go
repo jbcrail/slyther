@@ -39,14 +39,21 @@ func (h *History) Keys() []string {
 	return keys
 }
 
+func (h *History) Values() []*Response {
+	responses := []*Response{}
+	for _, response := range h.responses {
+		responses = append(responses, response)
+	}
+	return responses
+}
+
 func (h *History) String() string {
-	keys := h.Keys()
-	sort.Strings(keys)
+	responses := h.Values()
+	sort.Sort(ResponseByReferer(responses))
 
 	s := ""
-	for _, key := range keys {
-		response := h.Get(key)
-		s += key + "\n"
+	for _, response := range responses {
+		s += response.Referer + "\n"
 		for _, link := range response.Links {
 			s += "  [link ] " + link + "\n"
 		}
