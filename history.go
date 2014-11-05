@@ -2,7 +2,9 @@ package main
 
 import (
 	"bytes"
+	"io"
 	"sort"
+	"text/template"
 )
 
 type History struct {
@@ -64,10 +66,23 @@ func (h *History) String() string {
 	return string(bytes.TrimSpace([]byte(s)))
 }
 
-func (h *History) ToHTML() string {
-	return ""
+const txtTemplate = `{{range .}}{{.Referer}}
+{{range .Links}}  [link ] {{.}}
+{{end}}{{range .Assets}}  [asset] {{.}}
+{{end}}{{end}}`
+
+func (h *History) WriteAsText(w io.Writer) error {
+	responses := h.Values()
+	sort.Sort(ResponseByReferer(responses))
+
+	t := template.Must(template.New("template").Parse(txtTemplate))
+	return t.Execute(w, responses)
 }
 
-func (h *History) ToJSON() string {
-	return ""
+func (h *History) WriteAsHTML(w io.Writer) error {
+	return nil
+}
+
+func (h *History) WriteAsJSON(w io.Writer) error {
+	return nil
 }

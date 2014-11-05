@@ -36,8 +36,10 @@ func main() {
 
 	switch *format {
 	case "html":
-		fmt.Println(client.History.ToHTML())
+		client.History.WriteAsHTML(os.Stdout)
+	case "json":
+		client.History.WriteAsJSON(os.Stdout)
 	default:
-		fmt.Println(client.History)
+		client.History.WriteAsText(os.Stdout)
 	}
 }
