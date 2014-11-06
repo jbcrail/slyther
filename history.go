@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"io"
 	"sort"
 	"text/template"
@@ -47,23 +46,6 @@ func (h *History) Values() []*Response {
 		responses = append(responses, response)
 	}
 	return responses
-}
-
-func (h *History) String() string {
-	responses := h.Values()
-	sort.Sort(ResponseByReferer(responses))
-
-	s := ""
-	for _, response := range responses {
-		s += response.Referer + "\n"
-		for _, link := range response.Links {
-			s += "  [link ] " + link + "\n"
-		}
-		for _, asset := range response.Assets {
-			s += "  [asset] " + asset + "\n"
-		}
-	}
-	return string(bytes.TrimSpace([]byte(s)))
 }
 
 const txtTemplate = `{{range .}}{{.Referer}}
