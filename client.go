@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 )
@@ -34,7 +35,12 @@ func (c *Client) Do(url string) {
 	queue := NewRequestQueue()
 	queue.Push(&Request{url, c.Depth})
 
+	i := 0
+	animation := "-\\|/"
 	for queue.Len() > 0 {
+		fmt.Fprintf(lw, "\rcrawling %v... %c", url, animation[i%len(animation)])
+		i++
+
 		req := queue.Pop()
 		response, err := c.Crawl(req.Url, req.Depth)
 		if err != nil {
@@ -52,4 +58,6 @@ func (c *Client) Do(url string) {
 			}
 		}
 	}
+
+	fmt.Fprintf(lw, "\rcrawling %v... finished\n", url)
 }
