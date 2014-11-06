@@ -61,8 +61,37 @@ func (h *History) WriteAsText(w io.Writer) error {
 	return t.Execute(w, responses)
 }
 
+const htmlTemplate = `<html>
+<head><title>Sitemap</title></head>
+<body>
+<table>
+  <tr>
+    <td>Page</td>
+    <td>Links</td>
+    <td>Assets</td>
+  </tr>
+  {{range .}}<tr>
+    <td><a href="{{.Referer}}">{{.Referer}}</a></td>
+    <td>
+      {{range .Links}}<a href="{{.}}">{{.}}</a><br/>
+      {{end}}
+    </td>
+    <td>
+      {{range .Assets}}<a href="{{.}}">{{.}}</a><br/>
+      {{end}}
+    </td>
+  </tr>{{end}}
+</table>
+</body>
+</html>
+`
+
 func (h *History) WriteAsHTML(w io.Writer) error {
-	return nil
+	responses := h.Values()
+	sort.Sort(ResponseByReferer(responses))
+
+	t := template.Must(template.New("template").Parse(htmlTemplate))
+	return t.Execute(w, responses)
 }
 
 func (h *History) WriteAsJSON(w io.Writer) error {
