@@ -15,7 +15,6 @@ To run:
 
 ##### TODO
 
-- toggle verbosity (quiet mode?)
 - output as HTML, JSON, and graphviz
 - configure timeout
 - guess mimetypes by url; switch to get HEAD of URL?

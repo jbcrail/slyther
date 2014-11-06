@@ -11,11 +11,16 @@ const (
 	defaultTimeout      = 30
 	defaultOutputFormat = "text"
 	defaultScheme       = "http"
+	defaultQuietMode    = false
 )
 
 var (
 	depth  = flag.Uint("depth", defaultDepth, "maximum crawl depth")
 	format = flag.String("format", defaultOutputFormat, "output format for sitemap")
+	quiet  = flag.Bool("quiet", defaultQuietMode, "quiet mode (don't show progress or error messages)")
+
+	lw = os.Stderr // logging writer
+	hw = os.Stdout // history writer
 )
 
 func main() {
@@ -36,10 +41,10 @@ func main() {
 
 	switch *format {
 	case "html":
-		client.History.WriteAsHTML(os.Stdout)
+		client.History.WriteAsHTML(hw)
 	case "json":
-		client.History.WriteAsJSON(os.Stdout)
+		client.History.WriteAsJSON(hw)
 	default:
-		client.History.WriteAsText(os.Stdout)
+		client.History.WriteAsText(hw)
 	}
 }
