@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
 )
 
@@ -19,8 +21,8 @@ var (
 	format = flag.String("format", defaultOutputFormat, "output format for sitemap")
 	quiet  = flag.Bool("quiet", defaultQuietMode, "quiet mode (don't show progress or error messages)")
 
-	lw = os.Stderr // logging writer
-	hw = os.Stdout // history writer
+	lw io.Writer = os.Stderr // logging writer
+	hw io.Writer = os.Stdout // history writer
 )
 
 func main() {
@@ -33,6 +35,10 @@ func main() {
 	args := flag.Args()
 	if len(args) == 0 {
 		flag.Usage()
+	}
+
+	if *quiet {
+		lw = ioutil.Discard
 	}
 
 	client := NewClient(args[0])
