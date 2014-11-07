@@ -12,18 +12,24 @@ type Client struct {
 	Depth   uint
 	Timeout uint
 	History *History
+	client  *http.Client
 }
 
 func NewClient(base string) *Client {
 	url, _ := RetrieveBaseURL(defaultScheme, base)
-	return &Client{Base: url, Depth: defaultDepth, Timeout: defaultTimeout, History: NewHistory()}
+	return &Client{Base: url, Depth: defaultDepth, Timeout: defaultTimeout, History: NewHistory(), client: &http.Client{}}
 }
 
 func (c *Client) Crawl(url string, depth uint) (*Response, error) {
 	if !ValidURL(url) {
 		return nil, errors.New("invalid URL")
 	}
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("User-Agent", "slyther")
+	resp, err := c.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
