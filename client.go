@@ -1,6 +1,7 @@
 package main
 
 import (
+	"container/heap"
 	"errors"
 	"fmt"
 	"net/http"
@@ -39,7 +40,7 @@ func (c *Client) Crawl(url string, depth uint) (*Response, error) {
 
 func (c *Client) Do(url string) {
 	queue := NewRequestQueue()
-	queue.Push(&Request{url, c.Depth})
+	heap.Push(&queue, &Request{Url: url, Depth: 0})
 
 	i := 0
 	animation := "-\\|/"
@@ -47,20 +48,20 @@ func (c *Client) Do(url string) {
 		fmt.Fprintf(lw, "\rcrawling %v... %c", url, animation[i%len(animation)])
 		i++
 
-		req := queue.Pop()
+		req := heap.Pop(&queue).(*Request)
+		if req.Depth >= c.Depth {
+			break
+		}
+
 		response, err := c.Crawl(req.Url, req.Depth)
 		if err != nil {
 			continue
 		}
 		c.History.Add(response)
 
-		if req.Depth <= 1 {
-			continue
-		}
-
 		for _, link := range response.Links {
 			if !c.History.Has(link) {
-				queue.Push(&Request{link, req.Depth - 1})
+				heap.Push(&queue, &Request{Url: link, Depth: req.Depth + 1})
 			}
 		}
 	}

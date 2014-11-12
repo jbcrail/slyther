@@ -13,9 +13,9 @@ func TestEmptyQueue(t *testing.T) {
 
 func TestPushQueue(t *testing.T) {
 	rq := NewRequestQueue()
-	rq.Push(&Request{"index.html", 2})
-	rq.Push(&Request{"about.html", 2})
-	rq.Push(&Request{"jobs.html", 1})
+	rq.Push(&Request{Url: "index.html", Depth: 1})
+	rq.Push(&Request{Url: "about.html", Depth: 1})
+	rq.Push(&Request{Url: "jobs.html", Depth: 2})
 	if rq.Len() != 3 {
 		t.Errorf("Len() = %v, want %v", rq.Len(), 3)
 	}
@@ -23,9 +23,9 @@ func TestPushQueue(t *testing.T) {
 
 func TestPopQueue(t *testing.T) {
 	rq := NewRequestQueue()
-	rq.Push(&Request{"index.html", 2})
-	rq.Push(&Request{"about.html", 2})
-	rq.Push(&Request{"jobs.html", 1})
+	rq.Push(&Request{Url: "index.html", Depth: 1})
+	rq.Push(&Request{Url: "about.html", Depth: 1})
+	rq.Push(&Request{Url: "jobs.html", Depth: 2})
 	rq.Pop()
 	rq.Pop()
 	if rq.Len() != 1 {
