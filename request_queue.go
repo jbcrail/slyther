@@ -13,7 +13,7 @@ func NewRequestQueue() RequestQueue {
 }
 
 func (rq RequestQueue) Len() int {
-  return len(rq)
+	return len(rq)
 }
 
 func (rq RequestQueue) Less(i, j int) bool {
@@ -25,7 +25,7 @@ func (rq RequestQueue) Swap(i, j int) {
 }
 
 func (rq *RequestQueue) Push(x interface{}) {
-  req := x.(*Request)
+	req := x.(*Request)
 	*rq = append(*rq, req)
 }
 
