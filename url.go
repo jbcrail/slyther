@@ -26,7 +26,7 @@ func RetrieveBaseURL(scheme string, rawurl string) (*url.URL, error) {
 	if u.Host == "" {
 		u.Host = u.Path
 	}
-	u.Path = ""
+	u.Path = "/"
 	return u, nil
 }
 

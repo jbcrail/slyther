@@ -20,6 +20,21 @@ func TestValidURL(t *testing.T) {
 	}
 }
 
+func TestRetrieveBaseURL(t *testing.T) {
+	scheme := "http"
+	tests := map[string]string{
+		"http://github.com":       "http://github.com/",
+		"https://github.com":      "https://github.com/",
+		"https://github.com/":     "https://github.com/",
+		"http://github.com/about": "http://github.com/",
+	}
+	for in, out := range tests {
+		if url, _ := RetrieveBaseURL(scheme, in); url.String() != out {
+			t.Errorf("RetrieveBaseURL(%v, %v) = %v, want %v", scheme, in, url.String(), out)
+		}
+	}
+}
+
 func TestExpandURL(t *testing.T) {
 	base, _ := RetrieveBaseURL("http", "acme.com")
 	tests := map[string]string{
