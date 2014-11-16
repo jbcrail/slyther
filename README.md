@@ -15,7 +15,7 @@ To run:
 
 ##### TODO
 
-- output as JSON and graphviz
+- output as graphviz
 - configure timeout
 - guess mimetypes by url; switch to get HEAD of URL?
 - save local results w/ timestamps to prevent rude crawling

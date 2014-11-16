@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"io"
 	"sort"
 	"text/template"
@@ -95,5 +96,12 @@ func (h *History) WriteAsHTML(w io.Writer) error {
 }
 
 func (h *History) WriteAsJSON(w io.Writer) error {
+	responses := h.Values()
+	sort.Sort(ResponseByReferer(responses))
+	b, err := json.Marshal(responses)
+	if err != nil {
+		return err
+	}
+	w.Write(b)
 	return nil
 }
