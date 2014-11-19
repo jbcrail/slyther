@@ -38,12 +38,13 @@ func TestRetrieveBaseURL(t *testing.T) {
 func TestExpandURL(t *testing.T) {
 	base, _ := RetrieveBaseURL("http", "acme.com")
 	tests := map[string]string{
-		"http://github.com":   "http://github.com/",
-		"https://github.com":  "https://github.com/",
-		"https://github.com/": "https://github.com/",
-		"//github.com/about":  "http://github.com/about",
-		"/about.html":         "http://acme.com/about.html",
-		"about.html":          "http://acme.com/about.html",
+		"http://github.com":           "http://github.com/",
+		"https://github.com":          "https://github.com/",
+		"https://github.com/":         "https://github.com/",
+		"http://test.com/jobs?page=1": "http://test.com/jobs?page=1",
+		"//github.com/about":          "http://github.com/about",
+		"/about.html":                 "http://acme.com/about.html",
+		"about.html":                  "http://acme.com/about.html",
 	}
 	for in, out := range tests {
 		if url, _ := ExpandURL(base.Scheme, base.Host, in); url.String() != out {
