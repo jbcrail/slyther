@@ -16,7 +16,7 @@ func NewHistory() *History {
 }
 
 func (h *History) Add(resp *Response) {
-	h.responses[resp.Referer] = resp
+	h.responses[resp.Request.Url] = resp
 }
 
 func (h *History) Get(referer string) *Response {
@@ -49,14 +49,14 @@ func (h *History) Values() []*Response {
 	return responses
 }
 
-const txtTemplate = `{{range .}}{{.Referer}}
+const txtTemplate = `{{range .}}{{.Request.Url}}
 {{range .Links}}  [link ] {{.}}
 {{end}}{{range .Assets}}  [asset] {{.}}
 {{end}}{{end}}`
 
 func (h *History) WriteAsText(w io.Writer) error {
 	responses := h.Values()
-	sort.Sort(ResponseByReferer(responses))
+	sort.Sort(ResponseByRequestUrl(responses))
 
 	t := template.Must(template.New("template").Parse(txtTemplate))
 	return t.Execute(w, responses)
@@ -72,7 +72,7 @@ const htmlTemplate = `<html>
     <td>Assets</td>
   </tr>
   {{range .}}<tr>
-    <td><a href="{{.Referer}}">{{.Referer}}</a></td>
+    <td><a href="{{.Request.Url}}">{{.Request.Url}}</a></td>
     <td>
       {{range .Links}}<a href="{{.}}">{{.}}</a><br/>
       {{end}}
@@ -89,7 +89,7 @@ const htmlTemplate = `<html>
 
 func (h *History) WriteAsHTML(w io.Writer) error {
 	responses := h.Values()
-	sort.Sort(ResponseByReferer(responses))
+	sort.Sort(ResponseByRequestUrl(responses))
 
 	t := template.Must(template.New("template").Parse(htmlTemplate))
 	return t.Execute(w, responses)
@@ -97,7 +97,7 @@ func (h *History) WriteAsHTML(w io.Writer) error {
 
 func (h *History) WriteAsJSON(w io.Writer) error {
 	responses := h.Values()
-	sort.Sort(ResponseByReferer(responses))
+	sort.Sort(ResponseByRequestUrl(responses))
 	b, err := json.Marshal(responses)
 	if err != nil {
 		return err

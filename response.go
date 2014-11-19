@@ -2,14 +2,13 @@ package main
 
 import (
 	"io"
-	"net/url"
 	"regexp"
 
 	"code.google.com/p/go.net/html"
 )
 
 type Response struct {
-	Referer string
+	Request *Request
 	Links   []string
 	Assets  []string
 }
@@ -45,7 +44,8 @@ func getUrlTypeAndValue(t html.Token) (UrlType, string) {
 	return UnknownUrl, ""
 }
 
-func NewResponse(base *url.URL, referer string, r io.Reader) *Response {
+func NewResponse(req *Request, r io.Reader) *Response {
+	base, _ := RetrieveBaseURL(defaultScheme, req.Url)
 	var response Response
 	re := regexp.MustCompile("^" + base.Scheme + "://" + base.Host)
 	linkSet, assetSet := NewSet(), NewSet()
@@ -53,7 +53,7 @@ func NewResponse(base *url.URL, referer string, r io.Reader) *Response {
 	for {
 		tokenType := tokenizer.Next()
 		if tokenType == html.ErrorToken {
-			response.Referer = referer
+			response.Request = req
 			response.Links = linkSet.Strings()
 			response.Assets = assetSet.Strings()
 			break
@@ -83,8 +83,8 @@ func NewResponse(base *url.URL, referer string, r io.Reader) *Response {
 	return &response
 }
 
-type ResponseByReferer []*Response
+type ResponseByRequestUrl []*Response
 
-func (r ResponseByReferer) Len() int           { return len(r) }
-func (r ResponseByReferer) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
-func (r ResponseByReferer) Less(i, j int) bool { return r[i].Referer < r[j].Referer }
+func (r ResponseByRequestUrl) Len() int           { return len(r) }
+func (r ResponseByRequestUrl) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
+func (r ResponseByRequestUrl) Less(i, j int) bool { return r[i].Request.Url < r[j].Request.Url }

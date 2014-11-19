@@ -21,21 +21,21 @@ func NewClient(base string) *Client {
 	return &Client{Base: url, Depth: defaultDepth, Timeout: defaultTimeout, History: NewHistory(), client: &http.Client{}}
 }
 
-func (c *Client) Crawl(url string, depth uint) (*Response, error) {
-	if !ValidURL(url) {
+func (c *Client) Crawl(req *Request) (*Response, error) {
+	if !ValidURL(req.Url) {
 		return nil, errors.New("invalid URL")
 	}
-	req, err := http.NewRequest("GET", url, nil)
+	r, err := http.NewRequest("GET", req.Url, nil)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", "slyther")
-	resp, err := c.client.Do(req)
+	r.Header.Set("User-Agent", "slyther")
+	resp, err := c.client.Do(r)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	return NewResponse(c.Base, url, resp.Body), nil
+	return NewResponse(req, resp.Body), nil
 }
 
 func (c *Client) Do(url string) {
@@ -53,7 +53,7 @@ func (c *Client) Do(url string) {
 			break
 		}
 
-		response, err := c.Crawl(req.Url, req.Depth)
+		response, err := c.Crawl(req)
 		if err != nil {
 			continue
 		}
