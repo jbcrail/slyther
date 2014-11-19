@@ -34,9 +34,10 @@ func (c *Client) Do(url string) {
 		i++
 		pending--
 
-		c.History.Add(response)
+		c.History.Set(response.Request.Url, response)
 		for _, link := range response.Links {
 			if response.Request.Depth < c.Depth && !c.History.Has(link) {
+				c.History.Set(link, nil)
 				src <- &Request{Url: link, Depth: response.Request.Depth + 1}
 				pending++
 			}

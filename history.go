@@ -19,13 +19,17 @@ func (h *History) Add(resp *Response) {
 	h.responses[resp.Request.Url] = resp
 }
 
-func (h *History) Get(referer string) *Response {
-	response, _ := h.responses[referer]
+func (h *History) Set(url string, resp *Response) {
+	h.responses[url] = resp
+}
+
+func (h *History) Get(url string) *Response {
+	response, _ := h.responses[url]
 	return response
 }
 
-func (h *History) Has(referer string) bool {
-	_, ok := h.responses[referer]
+func (h *History) Has(url string) bool {
+	_, ok := h.responses[url]
 	return ok
 }
 
