@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"runtime"
 )
 
 const (
@@ -17,9 +18,10 @@ const (
 )
 
 var (
-	depth  = flag.Uint("depth", defaultDepth, "maximum crawl depth")
-	format = flag.String("format", defaultOutputFormat, "output format for sitemap")
-	quiet  = flag.Bool("quiet", defaultQuietMode, "quiet mode (don't show progress or error messages)")
+	concurrency = flag.Int("c", runtime.GOMAXPROCS(0), "number of multiple concurrent requests")
+	depth       = flag.Uint("depth", defaultDepth, "maximum crawl depth")
+	format      = flag.String("format", defaultOutputFormat, "output format for sitemap")
+	quiet       = flag.Bool("quiet", defaultQuietMode, "quiet mode (don't show progress or error messages)")
 
 	lw io.Writer = os.Stderr // logging writer
 	hw io.Writer = os.Stdout // history writer
@@ -36,6 +38,8 @@ func main() {
 	if len(args) == 0 {
 		flag.Usage()
 	}
+
+	runtime.GOMAXPROCS(*concurrency)
 
 	if *quiet {
 		lw = ioutil.Discard

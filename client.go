@@ -1,11 +1,9 @@
 package main
 
 import (
-	"container/heap"
-	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
+	"runtime"
 )
 
 type Client struct {
@@ -13,56 +11,39 @@ type Client struct {
 	Depth   uint
 	Timeout uint
 	History *History
-	client  *http.Client
 }
 
 func NewClient(base string) *Client {
 	url, _ := RetrieveBaseURL(defaultScheme, base)
-	return &Client{Base: url, Depth: defaultDepth, Timeout: defaultTimeout, History: NewHistory(), client: &http.Client{}}
-}
-
-func (c *Client) Crawl(req *Request) (*Response, error) {
-	if !ValidURL(req.Url) {
-		return nil, errors.New("invalid URL")
-	}
-	r, err := http.NewRequest("GET", req.Url, nil)
-	if err != nil {
-		return nil, err
-	}
-	r.Header.Set("User-Agent", "slyther")
-	resp, err := c.client.Do(r)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	return NewResponse(req, resp.Body), nil
+	return &Client{Base: url, Depth: defaultDepth, Timeout: defaultTimeout, History: NewHistory()}
 }
 
 func (c *Client) Do(url string) {
-	queue := NewRequestQueue()
-	heap.Push(&queue, &Request{Url: url, Depth: 0})
+	pending := 0
+
+	src := make(chan *Request, 1024)
+	sink := NewParallelChannel(src, runtime.GOMAXPROCS(0), worker)
+
+	src <- &Request{Url: url, Depth: 1}
+	pending++
 
 	i := 0
 	animation := "-\\|/"
-	for queue.Len() > 0 {
+	for response := range sink {
 		fmt.Fprintf(lw, "\rcrawling %v... %c", url, animation[i%len(animation)])
 		i++
+		pending--
 
-		req := heap.Pop(&queue).(*Request)
-		if req.Depth >= c.Depth {
-			break
-		}
-
-		response, err := c.Crawl(req)
-		if err != nil {
-			continue
-		}
 		c.History.Add(response)
-
 		for _, link := range response.Links {
-			if !c.History.Has(link) {
-				heap.Push(&queue, &Request{Url: link, Depth: req.Depth + 1})
+			if response.Request.Depth < c.Depth && !c.History.Has(link) {
+				src <- &Request{Url: link, Depth: response.Request.Depth + 1}
+				pending++
 			}
+		}
+
+		if pending == 0 {
+			close(src)
 		}
 	}
 
