@@ -27,13 +27,12 @@ func getMockURLs() []string {
 }
 
 func getMockResponses() []*Response {
-	base := getMockBaseURL()
 	urls := getMockURLs()
 	reader := bytes.NewReader([]byte{})
 	responses := []*Response{}
-	responses = append(responses, NewResponse(base, urls[0], reader))
-	responses = append(responses, NewResponse(base, urls[0], reader))
-	return append(responses, NewResponse(base, urls[1], reader))
+	responses = append(responses, NewResponse(&Request{urls[0], 0}, reader))
+	responses = append(responses, NewResponse(&Request{urls[0], 0}, reader))
+	return append(responses, NewResponse(&Request{urls[1], 0}, reader))
 }
 
 func TestAddUniqueResponses(t *testing.T) {
@@ -61,7 +60,7 @@ func TestGetResponse(t *testing.T) {
 	responses := getMockResponses()
 	h := NewHistory()
 	h.Add(responses[0])
-	actual := h.Get(responses[0].Referer)
+	actual := h.Get(responses[0].Request.Url)
 	if !reflect.DeepEqual(actual, responses[0]) {
 		t.Errorf("Get() = %v, want %v", actual, responses[0])
 	}
@@ -71,7 +70,7 @@ func TestHasResponse(t *testing.T) {
 	responses := getMockResponses()
 	h := NewHistory()
 	h.Add(responses[0])
-	actual := h.Has(responses[0].Referer)
+	actual := h.Has(responses[0].Request.Url)
 	expected := true
 	if actual != expected {
 		t.Errorf("Has() = %v, want %v", actual, expected)
