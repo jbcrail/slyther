@@ -10,16 +10,18 @@ import (
 )
 
 const (
-	defaultDepth        = 5
-	defaultTimeout      = 30
-	defaultOutputFormat = "text"
-	defaultScheme       = "http"
-	defaultQuietMode    = false
+	defaultDepth          = 5
+	defaultTimeout        = 30
+	defaultSourceCapacity = 1024
+	defaultOutputFormat   = "text"
+	defaultScheme         = "http"
+	defaultQuietMode      = false
 )
 
 var (
 	concurrency = flag.Int("c", runtime.GOMAXPROCS(0), "number of multiple concurrent requests")
 	depth       = flag.Uint("depth", defaultDepth, "maximum crawl depth")
+	capacity    = flag.Uint("capacity", defaultSourceCapacity, "maximum capacity of source channel")
 	format      = flag.String("format", defaultOutputFormat, "output format for sitemap")
 	quiet       = flag.Bool("quiet", defaultQuietMode, "quiet mode (don't show progress or error messages)")
 
@@ -47,6 +49,7 @@ func main() {
 
 	client := NewClient(args[0])
 	client.Depth = *depth
+	client.Capacity = *capacity
 	client.Do(client.Base.String())
 
 	switch *format {
