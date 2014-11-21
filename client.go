@@ -31,7 +31,7 @@ func (c *Client) Do(url string) {
 	src := make(chan *Request, c.Capacity)
 	sink := NewParallelChannel(src, runtime.GOMAXPROCS(0), worker)
 
-	src <- &Request{Url: url, Depth: 1}
+	src <- &Request{Url: url, Depth: 0}
 	pending++
 
 	i := 0
