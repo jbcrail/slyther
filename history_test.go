@@ -30,9 +30,13 @@ func getMockResponses() []*Response {
 	urls := getMockURLs()
 	reader := bytes.NewReader([]byte{})
 	responses := []*Response{}
-	responses = append(responses, NewResponse(&Request{urls[0], 0}, reader))
-	responses = append(responses, NewResponse(&Request{urls[0], 0}, reader))
-	return append(responses, NewResponse(&Request{urls[1], 0}, reader))
+	r1 := &Response{Request: &Request{urls[0], 0}}
+	r1.ParseHTML(reader)
+	responses = append(responses, r1)
+	responses = append(responses, r1)
+	r2 := &Response{Request: &Request{urls[1], 0}}
+	r2.ParseHTML(reader)
+	return append(responses, r2)
 }
 
 func TestAddUniqueResponses(t *testing.T) {
