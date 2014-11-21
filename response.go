@@ -11,6 +11,7 @@ type Response struct {
 	Request *Request
 	Links   []string
 	Assets  []string
+	Error   error `json:"-"`
 }
 
 type UrlType int
@@ -44,18 +45,16 @@ func getUrlTypeAndValue(t html.Token) (UrlType, string) {
 	return UnknownUrl, ""
 }
 
-func NewResponse(req *Request, r io.Reader) *Response {
-	base, _ := RetrieveBaseURL(defaultScheme, req.Url)
-	var response Response
+func (resp *Response) ParseHTML(r io.Reader) {
+	base, _ := RetrieveBaseURL(defaultScheme, resp.Request.Url)
 	re := regexp.MustCompile("^" + base.Scheme + "://" + base.Host)
 	linkSet, assetSet := NewSet(), NewSet()
 	tokenizer := html.NewTokenizer(r)
 	for {
 		tokenType := tokenizer.Next()
 		if tokenType == html.ErrorToken {
-			response.Request = req
-			response.Links = linkSet.Strings()
-			response.Assets = assetSet.Strings()
+			resp.Links = linkSet.Strings()
+			resp.Assets = assetSet.Strings()
 			break
 		}
 		token := tokenizer.Token()
@@ -80,7 +79,6 @@ func NewResponse(req *Request, r io.Reader) *Response {
 			}
 		}
 	}
-	return &response
 }
 
 type ResponseByRequestUrl []*Response

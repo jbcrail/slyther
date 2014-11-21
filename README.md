@@ -21,4 +21,4 @@ To run:
 - save local results w/ timestamps to prevent rude crawling
 - obey robots.txt; switch to ignore robots.txt
 - handle redirects
-- record statistics (memory, time, timeouts, errors, etc)
+- record statistics (memory, time, timeouts, etc)

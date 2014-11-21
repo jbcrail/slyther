@@ -12,6 +12,7 @@ type Client struct {
 	Timeout  uint
 	Capacity uint
 	History  *History
+	Errors   uint
 }
 
 func NewClient(base string) *Client {
@@ -22,6 +23,7 @@ func NewClient(base string) *Client {
 		Timeout:  defaultTimeout,
 		Capacity: defaultSourceCapacity,
 		History:  NewHistory(),
+		Errors:   0,
 	}
 }
 
@@ -31,7 +33,7 @@ func (c *Client) Do(url string) {
 	src := make(chan *Request, c.Capacity)
 	sink := NewParallelChannel(src, runtime.GOMAXPROCS(0), worker)
 
-	src <- &Request{Url: url, Depth: 0}
+	src <- &Request{Url: url, Depth: 1}
 	pending++
 
 	i := 0
@@ -41,9 +43,8 @@ func (c *Client) Do(url string) {
 		i++
 		pending--
 
-		// Workers return nil if the retrieval failed. Need to add better error
-		// handling.
-		if response == nil {
+		if response.Error != nil {
+			c.Errors++
 			continue
 		}
 

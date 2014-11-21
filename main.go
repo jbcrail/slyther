@@ -60,4 +60,6 @@ func main() {
 	default:
 		client.History.WriteAsText(hw)
 	}
+
+	fmt.Fprintf(lw, "# errors: %v\n", client.Errors)
 }
