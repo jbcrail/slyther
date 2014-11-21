@@ -41,6 +41,12 @@ func (c *Client) Do(url string) {
 		i++
 		pending--
 
+		// Workers return nil if the retrieval failed. Need to add better error
+		// handling.
+		if response == nil {
+			continue
+		}
+
 		c.History.Set(response.Request.Url, response)
 		for _, link := range response.Links {
 			if response.Request.Depth < c.Depth && !c.History.Has(link) {
